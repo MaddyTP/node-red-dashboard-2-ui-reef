@@ -1,0 +1,100 @@
+{
+    "name": "@maddytp/node-red-dashboard-2-ui-reef",
+    "version": "1.0.0",
+    "description": "Set of UI nodes for aquarium automation based on @flowfuse/node-red-dashboard",
+    "keywords": [
+        "node-red",
+        "node-red-dashboard-2",
+        "node-red-contrib-ui-reef",
+        "reef",
+        "saltwater",
+        "hydro",
+        "aquarium"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/MaddyTP/node-red-dashboard-2-ui-reef.git"
+    },
+    "license": "Apache-2.0",
+    "author": {
+        "name": "Matt Portrey",
+        "url": "https://github.com/MaddyTP"
+    },
+    "exports": {
+        "import": "./resources/ui-reef.esm.js",
+        "require": "./resources/ui-reef.umd.js"
+    },
+    "files": [
+        "nodes/*",
+        "ui/*",
+        "resources/*"
+    ],
+    "scripts": {
+        "build": "vite build",
+        "build:dev": "NODE_ENV=development vite build",
+        "dev": "NODE_ENV=development vite build --watch",
+        "dev:prod": "vite build --watch",
+        "lint": "npm run lint:js && npm run lint:package",
+        "lint:fix": "npm run lint:js:fix && npm run lint:package:fix",
+        "lint:js": "eslint --ext .js,.vue,.cjs,.mjs .",
+        "lint:js:fix": "yarn lint:js --fix",
+        "lint:package": "sort-package-json --check 'package.json'",
+        "lint:package:fix": "sort-package-json 'package.json'"
+    },
+    "dependencies": {
+        "@mdi/font": "^7.4.47",
+        "acorn": "^8.14.0",
+        "acorn-walk": "^8.3.4",
+        "chart.js": "^4.4.4",
+        "chartjs-adapter-luxon": "^1.3.1",
+        "dompurify": "^3.1.7",
+        "moment": "^2.30.1",
+        "vue": "^3.3.8",
+        "vuex": "^4.1.0"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^4.5.0",
+        "eslint": "^8.53.0",
+        "eslint-config-standard": "^17.1.0",
+        "eslint-plugin-import": "^2.29.0",
+        "eslint-plugin-n": "^16.3.1",
+        "eslint-plugin-vue": "^9.18.1",
+        "vite": "^5.0.13",
+        "vite-plugin-css-injected-by-js": "^3.3.0",
+        "vite-plugin-static-copy": "^1.0.6",
+        "vite-plugin-vue-devtools": "^7.6.4"
+    },
+    "engines": {
+        "node": ">=14"
+    },
+    "node-red": {
+        "version": ">=3.0.0",
+        "nodes": {
+            "ui-probe": "nodes/ui-probe.js",
+            "ui-input": "nodes/ui-input.js",
+            "ui-output": "nodes/ui-output.js",
+            "ui-feed": "nodes/ui-feed.js"
+        }
+    },
+    "node-red-dashboard-2": {
+        "version": ">=1.19.0",
+        "widgets": {
+            "ui-probe": {
+                "output": "ui-probe.umd.js",
+                "component": "UIProbe"
+            },
+            "ui-input": {
+                "output": "ui-input.umd.js",
+                "component": "UIInput"
+            },
+            "ui-output": {
+                "output": "ui-output.umd.js",
+                "component": "UIOutput"
+            },
+            "ui-feed": {
+                "output": "ui-feed.umd.js",
+                "component": "UIFeed"
+            }
+        }
+    }
+}

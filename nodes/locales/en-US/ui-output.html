@@ -1,0 +1,61 @@
+<script type="text/html" data-help-name="ui-output">
+    <p>A Node-RED node to show switch in the Node-RED Dashboard.</p>
+    <h3>Properties</h3>
+    <p><strong>Label:</strong><br/>
+    The label that will be displayed on the widget.</p>
+    <p><strong>Topic:</strong><br/>
+    The text that needs to be send in the <code>msg.topic</code> field.</p>
+    <p><strong>Use theme colors:</strong><br/>
+    Specify whether the theme colors should be used. If not active, custom colors can be specified for each option separately.</p>
+    <p><strong>Options:</strong><br/>
+    Specify which options need to be displayed:
+        <ul>
+            <li><i>Label: </i>(optional) The description that will be displayed.</li>
+            <li><i>Value: </i>The value that will be set on input.</li>
+            <li><i>Color: </i>The color of the option in the UI.</li>
+        </ul>
+    </p>
+    <h3>Function</h3>
+    <p>A JavaScript function to run against the messages being received by the node.</p>
+    <p>The messages are passed in as a JavaScript object called <code>msg</code>.</p>
+    <p>By convention it will have a <code>msg.payload</code> property containing
+       the body of the message.</p>
+    <p>The function is expected to return a message object (or multiple message objects), but can choose
+       to return nothing in order to halt a flow.</p>
+    <p>Value can be sent to UI to display on widget with a <code>msg.display</code>.</p>
+    <h3>Details</h3>
+    <p>See the <a target="_blank" href="https://nodered.org/docs/writing-functions.html">online documentation</a>
+    for more information on writing functions.</p>
+    <h4>Sending messages</h4>
+    <p>The function can either return the messages it wants to pass on to the next nodes
+    in the flow, or can call <code>node.send(messages)</code>.</p>
+    <p>It can return/send:</p>
+    <ul>
+      <li>a single message object - passed to nodes connected to the first output</li>
+      <li>an array of message objects - passed to nodes connected to the corresponding outputs</li>
+    </ul>
+    <p>If any element of the array is itself an array of messages, multiple
+          messages are sent to the corresponding output.</p>
+    <p>If null is returned, either by itself or as an element of the array, no
+          message is passed on.</p>
+    <h4>Logging and Error Handling</h4>
+    <p>To log any information, or report an error, the following functions are available:</p>
+      <ul>
+          <li><code>node.log("Log message")</code></li>
+          <li><code>node.warn("Warning")</code></li>
+          <li><code>node.error("Error")</code></li>
+      </ul>
+    </p>
+    <p>The Catch node can also be used to handle errors. To invoke a Catch node,
+    pass <code>msg</code> as a second argument to <code>node.error</code>:</p>
+    <pre>node.error("Error",msg);</pre>
+    <h4>Accessing Node Information</h4>
+    <p>The following properties are available to access information about the node:</p>
+    <ul>
+        <li><code>node.id</code> - id of the node</li>
+        <li><code>node.name</code> - name of the node</li>
+        <li><code>node.outputCount</code> - number of node outputs</li>
+    </ul>
+    <h4>Using environment variables</h4>
+    <p>Environment variables can be accessed using <code>env.get("MY_ENV_VAR")</code>.</p>
+</script>

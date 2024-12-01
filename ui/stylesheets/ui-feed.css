@@ -1,0 +1,117 @@
+.ui-feed-container {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    width: 100%;
+}
+
+.ui-feed-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: .025em;
+    text-transform: uppercase;
+    padding-left: 3px;
+    height: 1.4em;
+}
+
+.ui-feed-body {
+    display: inline-flex;
+    justify-content: space-around;
+    gap: 1px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: .025em;
+    width: 100%;
+    height: 100%;
+    border-radius: 1.5em;
+    border: 1px solid rgb(var(--v-theme-primary));
+}
+
+.ui-feed-button {
+    display: flex;
+    text-align: center;
+    z-index: 1;
+    outline: none;
+    user-select: none;
+    cursor: pointer;
+    transition: all 0.5s;
+    transition-behavior: allow-discrete;
+    margin: 0;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    border-radius: 1.5em;
+    border: rgb(var(--v-theme-surface)) solid 2px;
+
+    &>.ui-feed-label {
+        display: inline;
+        margin: auto;
+        opacity: 1;
+        transition: all 0.5s;
+    }
+
+    &>.ui-feed-timer {
+        display: none;
+        opacity: 0;
+        transition: all 0.5s;
+    }
+
+    &>.ui-feed-cancel {
+        display: none;
+        opacity: 0;
+        transition: all 0.5s;
+    }
+}
+
+.ui-feed-active {
+    width: 100% !important;
+    opacity: 1;
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin: 0 !important;
+    transition: all 0.5s;
+    pointer-events: none !important;
+
+    &>.ui-feed-label {
+        display: inline-flex !important;
+        margin: 0 !important;
+        opacity: 1 !important;
+        user-select: none;
+        cursor: pointer;
+        pointer-events: none;
+        transition: all 0.5s;
+    }
+
+    &>.ui-feed-timer {
+        display: inline-flex !important;
+        position: absolute;
+        opacity: 1 !important;
+        font-size: 20px !important;
+        user-select: none;
+        cursor: pointer;
+        pointer-events: none;
+        left: 50%;
+        transform: translateX(-50%);
+        transition: all 0.5s;
+    }
+
+    &>.ui-feed-cancel {
+        display: inline-flex !important;
+        opacity: 1 !important;
+        text-align: right;
+        transition: all 0.5s;
+        pointer-events: all !important;
+        scale: 1.5;
+    }
+}
+
+.ui-feed-inactive {
+    width: 0 !important;
+    opacity: 0 !important;
+    border: 0 !important;
+    display: none !important;
+}

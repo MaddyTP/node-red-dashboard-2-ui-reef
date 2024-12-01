@@ -1,0 +1,163 @@
+<script type="text/javascript">
+  RED.nodes.registerType('ui-probe', {
+    category: 'ui reef',
+    color: 'rgb( 63, 173, 181)',
+    defaults: {
+      name: { value: '' },
+      group: { type: 'ui-group', required: true },
+      order: { value: 0 },
+      width: {
+        value: 6,
+        validate: function (v) {
+          const width = v || 0
+          const currentGroup = $('#node-input-group').val() || this.group
+          const groupNode = RED.nodes.node(currentGroup)
+          const valid = !groupNode || +width <= +groupNode.width
+          $('#node-input-size').toggleClass('input-error', !valid)
+          return valid
+        }
+      },
+      height: { value: 2 },
+      label: { value: 'probe' },
+      removeOlder: { value: 1, validate: RED.validators.number(), required: true },
+      removeOlderUnit: { value: '3600', required: true },
+      decimal: { value: 0, validate: RED.validators.number(), required: true },
+      symbol: { value: '' },
+      scale: { value: false },
+      minin: {
+        value: '',
+        validate: function (v) {
+          if ($('#node-input-scale').val() === true) {
+            return (RED.validators.number(v));
+          }
+          return true;
+        },
+      },
+      maxin: {
+        value: '',
+        validate: function (v) {
+          if ($('#node-input-scale').val()) {
+            return (RED.validators.number(v));
+          }
+          return true;
+        },
+      },
+      minout: {
+        value: '',
+        validate: function (v) {
+          if ($('#node-input-scale').val()) {
+            return (RED.validators.number(v));
+          }
+          return true;
+        },
+      },
+      maxout: {
+        value: '',
+        validate: function (v) {
+          if ($('#node-input-scale').val()) {
+            return (RED.validators.number(v));
+          }
+          return true;
+        },
+      },
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: 'font-awesome/fa-thermometer-half',
+    align: 'left',
+    paletteLabel: 'probe',
+    label: function () { return this.name || (!this.label.indexOf('{{') ? null : this.label) || 'probe'; },
+    labelStyle: function () { return (this.name ? 'node_label_italic' : ''); },
+    oneditprepare: function () {
+      if (RED.nodes.subflow(this.z)) {
+        $('#node-input-width').attr('type', 'text')
+        $('#node-input-height').attr('type', 'text')
+        $('div.form-row.nr-db-ui-element-sizer-row').hide()
+        $('div.form-row.nr-db-ui-manual-size-row').show()
+      } else {
+        $('div.form-row.nr-db-ui-element-sizer-row').show()
+        $('div.form-row.nr-db-ui-manual-size-row').hide()
+        $('#node-input-size').elementSizer({
+          width: '#node-input-width',
+          height: '#node-input-height',
+          group: '#node-input-group'
+        })
+      }
+      $('#node-input-size').elementSizer({
+        width: '#node-input-width',
+        group: '#node-input-group',
+      });
+      $('#node-input-scale').on('change', function () {
+        if ($(this)[0].checked) {
+          $('.inp-lbl-row').show();
+          $('.inp-row').show();
+          $('.outp-lbl-row').show();
+          $('.outp-row').show();
+        } else {
+          $('.inp-lbl-row').hide();
+          $('.inp-row').hide();
+          $('.outp-lbl-row').hide();
+          $('.outp-row').hide();
+        }
+      });
+    },
+    oneditsave: function () {
+      const node = this;
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="ui-probe">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <div style="display: inline-block; width: calc(100% - 105px)"><input type="text" id="node-input-name"></div>
+    </div>
+    <div class="form-row">
+        <label for="node-input-group"><i class="fa fa-table"></i> Group</span></label>
+        <div style="display: inline-block; width: calc(100% - 105px)"><input type="text" id="node-input-group"></div>
+    </div>
+    <div class="form-row">
+        <label for="node-input-label"><i class="fa fa-i-cursor"></i> Label</label>
+        <div style="display: inline-block; width: calc(100% - 105px)"><input type="text" id="node-input-label"></div>
+    </div>
+    <div class="form-row" id="template-row-size">
+        <label><i class="fa fa-object-group"></i> Size</span></label>
+        <input type="hidden" id="node-input-width">
+        <input type="hidden" id="node-input-height">
+        <button class="editor-button" id="node-input-size"></button>
+    </div>
+    <div class="form-row" id="x-axis-show">
+        <label for="node-input-removeOlder"><i class="fa fa-clock-o"></i>Timeframe</label>
+        <input type="text" id="node-input-removeOlder" style="width:50px;">
+        <select id="node-input-removeOlderUnit" style="width:100px;">
+            <option value="1">Seconds</option>
+            <option value="60">Minutes</option>
+            <option value="3600">Hours</option>
+            <option value="86400">Days</option>
+            <option value="604800">Weeks</option>
+        </select>
+    </div>
+    <div class="form-row" id="x-axis-show">
+        <label for="node-input-decimal"><i class="fa fa-ellipsis-h"></i> Rounding</label>
+        <input type="text" id="node-input-decimal" style="width:50px;">
+    </div>
+    <div class="form-row">
+        <label for="node-input-symbol"><i class="fa fa-i-cursor"></i> Symbol</label>
+        <div style="display: inline-block; width: calc(100% - 105px)"><input type="text" id="node-input-symbol"></div>
+    </div>
+    <div class="form-row">
+        <label for="node-input-scale"><i class='fa fa-sign-out'></i> Scale</label>
+        <input type="checkbox" id="node-input-scale" style='width: auto; border: none; vertical-align: baseline;'>
+        <span for='node-input-scale' style="padding-left: 5px;">Map value to range?</span>
+    </div>
+    <div class="form-row inp-lbl-row"><i class="fa fa-sign-in"></i> Input Range:</div>
+    <div class="form-row inp-row"><label></label>
+        From: <input type="text" id="node-input-minin" style="width:100px;"/>
+        &nbsp;&nbsp;To: <input type="text" id="node-input-maxin" style="width:100px;"/>
+    </div>
+    <div class="form-row outp-lbl-row"><i class="fa fa-sign-out"></i> Output Range:</div>
+    <div class="form-row outp-row"><label></label>
+        From: <input type="text" id="node-input-minout" style="width:100px;"/>
+        &nbsp;&nbsp;To: <input type="text" id="node-input-maxout" style="width:100px;"/>
+    </div>
+</script>

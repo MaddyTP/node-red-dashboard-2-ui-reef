@@ -1,0 +1,37 @@
+.probe-container{
+    display: flex;
+    height: 100%;
+    width: 100%;
+}
+.probe-chart{
+    width: calc(100% - 80px);
+    height: 100%;
+}
+.probe-chart-canvas{
+    border-radius: 10px;
+    background-color: rgba(var(--v-theme-primary), 0.2);
+}
+.probe-label{
+    display: block;
+    padding-left: 10px;
+    width: 80px;
+    margin: auto;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.probe-name{
+    line-height: 28px;
+    letter-spacing: .025em;
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+    text-transform: uppercase;
+    border-bottom: 1px dashed #aaa;
+}
+.probe-value{
+    position: relative;
+    font-size: 20px;
+    font-weight: 500;
+    color: rgb(var(--v-theme-primary));
+    text-align: center;
+}

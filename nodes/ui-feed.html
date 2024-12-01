@@ -1,0 +1,223 @@
+<script type="text/javascript">
+    function hasProperty (obj, prop) {
+        return Object.prototype.hasOwnProperty.call(obj, prop)
+    }
+    RED.nodes.registerType('ui-feed', {
+        category: 'ui reef',
+        color: 'rgb( 63, 173, 181)',
+        defaults: {
+            name: { value: '' },
+            group: { type: 'ui-group', required: true },
+            order: { value: 0 },
+            width: {
+                value: 6,
+                validate: function (v) {
+                    const width = v || 0
+                    const currentGroup = $('#node-input-group').val() || this.group
+                    const groupNode = RED.nodes.node(currentGroup)
+                    const valid = !groupNode || +width <= +groupNode.width
+                    $('#node-input-size').toggleClass('input-error', !valid)
+                    return valid
+                }
+            },
+            height: { value: 1 },
+            label: { value: 'feed' },
+            topic: { value: '' },
+            cancel: { value: '' },
+            cancelType: { value: 'str' },
+            useThemeColors: { value: true },
+            options: {
+                value: [],
+                validate: function (v) {
+                    const unique = new Set(v.map(function (o) { return o.value; }));
+                    return v.length === unique.size && v.length > 1;
+                },
+            },
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: 'timer.svg',
+        align: 'left',
+        paletteLabel: 'feed',
+        label: function () { return this.name || (!this.label.indexOf('{{') ? null : this.label) || 'feed'; },
+        labelStyle: function () { return (this.name ? 'node_label_italic' : ''); },
+        oneditprepare: function () {
+            if (RED.nodes.subflow(this.z)) {
+                $('#node-input-width').attr('type', 'text')
+                $('#node-input-height').attr('type', 'text')
+                $('div.form-row.nr-db-ui-element-sizer-row').hide()
+                $('div.form-row.nr-db-ui-manual-size-row').show()
+            } else {
+                $('div.form-row.nr-db-ui-element-sizer-row').show()
+                $('div.form-row.nr-db-ui-manual-size-row').hide()
+                $('#node-input-size').elementSizer({
+                    width: '#node-input-width',
+                    height: '#node-input-height',
+                    group: '#node-input-group'
+                })
+            }
+            this.useThemeColors = this.useThemeColors ?? true
+            function getColor(idx) {
+                const colors = ['#009933', '#999999', '#ff6666', '#009999', '#cccc00', '#ff33cc', '#cc6600',
+                    '#99ff66', '#660033',
+                ];
+                if (idx > colors.length - 1) {
+                    return colors[Math.floor(Math.random() * colors.length)];
+                }
+                return colors[idx];
+            }
+            const optionsList = $('#node-input-opts-container').css('min-height', '200px').editableList({
+                header: $('<div>').css({ 'padding-left': '32px', 'padding-right': '32px', gap: '12px', display: 'flex' }).append($.parseHTML(
+                    "<div style='width:30%; display: inline-grid'><b>Label</b></div>"
+                    + "<div style='width:30%; display: inline-grid'><b>On Start</b></div>"
+                    + "<div style='width:32%; display: inline-grid'><b>Duration</b></div>"
+                    + "<div style='width:10%; display: inline-grid' class='node-input-option-color'><b>Color</b></div>",
+                )),
+                addItem: function (container, i, option) {
+                    const row = $('<div/>').css({ display: 'flex' }).appendTo(container);
+                    const labelField = $('<input/>', { class: 'node-input-option-label', type: 'text' }).css({ 'flex-grow': 0, width: '30%', 'margin-left': '5px', 'margin-right': '5px' }).appendTo(row);
+                    labelField.val(option.label || 'Feed ' + i);
+                    const valueField = $('<input/>', { class: 'node-input-option-value', type: 'text' }).css({ 'flex-grow': 0, width: '30%', 'margin-left': '5px', 'margin-right': '5px' }).appendTo(row);
+                    valueField.typedInput({ types: ['str', 'num', 'bool'] });
+                    valueField.typedInput('type', option.valueType || 'str');
+                    valueField.typedInput('value', option.value || 'feed_' + i);
+                    valueField.on('change', function (type, value) {
+                        validate();
+                    });
+                    const duration = $('<div/>').css({ display: 'inline-block', width: '32%', 'margin-left': '5px', 'margin-right': '5px' }).appendTo(row);
+                    const hourField = $('<input/>', { class: 'node-input-option-hour', type: 'number', min: "0", max: "59", step: "1" }).css({ width: '50px', 'text-align': 'center' }).appendTo(duration);
+                    hourField.val(option.hour || 0);
+                    $('<span>:<span/>').css({ 'margin-left': '2px', 'margin-right': '2px', 'text-align': 'center' }).appendTo(duration);
+                    const minuteField = $('<input/>', { class: 'node-input-option-minute', type: 'number', min: "0", max: "59", step: "1" }).css({ width: '50px', 'text-align': 'center' }).appendTo(duration);
+                    minuteField.val(option.minute || 5);
+                    $('<span>:<span/>').css({ 'margin-left': '2px', 'margin-right': '2px', 'text-align': 'center' }).appendTo(duration);
+                    const secondField = $('<input/>', { class: 'node-input-option-second', type: 'number', min: "0", max: "59", step: "1" }).css({ width: '50px', 'text-align': 'center' }).appendTo(duration);
+                    secondField.val(option.second || 0);
+                    const colofield = $('#node-input-useThemeColors').prop('checked') ? 'none' : 'inline-block'
+                    const colorField = $('<input/>', { class: 'node-input-option-color', type: 'color' }).css({ width: '10%', 'margin-left': '5px', display: colofield }).appendTo(row)
+                    colorField.val(option.color || getColor(i))
+                    validate();
+                },
+                removeItem: function (data) {
+                    validate();
+                },
+                removable: true,
+                sortable: true,
+            });
+            if (this.options) {
+                this.options.forEach(function (option, index) {
+                    optionsList.editableList('addItem', {
+                        index: index, label: option.label, value: option.value, valueType: option.valueType, hour: option.hour, minute: option.minute, second: option.second, color: option.color,
+                    });
+                });
+            }
+            $('#node-input-useThemeColors').on('change', function () {
+                const colorFields = $('.node-input-option-color');
+                if ($(this)[0].checked) {
+                    colorFields.hide();
+                } else {
+                    colorFields.show();
+                }
+            });
+            $('#node-input-doubleClickZoomEnabled').change();
+            $('#node-input-cancel').typedInput({
+                default: 'str',
+                typeField: $('#node-input-cancelType'),
+                types: ['str', 'num', 'bool']
+            })
+            function validate() {
+                const that = this;
+                this.options = [];
+                const optionsList = $('#node-input-opts-container').editableList('items');
+                optionsList.each(function (i) {
+                    const option = $(this);
+                    const index = i;
+                    const label = option.find('.node-input-option-label').val();
+                    const value = option.find('.node-input-option-value').typedInput('value');
+                    const valueType = option.find('.node-input-option-value').typedInput('type');
+                    const hour = option.find('.node-input-option-hour').val();
+                    const minute = option.find('.node-input-option-minute').val();
+                    const second = option.find('.node-input-option-second').val();
+                    const color = option.find('.node-input-option-color').val();
+                    that.options.push({
+                        index, label, value, valueType, hour, minute, second, color: color,
+                    });
+                });
+                const un = new Set(this.options.map(function (o) { return o.value; }));
+                if (this.options.length !== un.size) {
+                    $('#configError').text('Values must be unique!');
+                    $('#configError').show();
+                } else if (this.options.length < 2) {
+                    $('#configError').text('Configure at least two options!');
+                    $('#configError').show();
+                } else {
+                    $('#configError').hide();
+                }
+            }
+            if (this.options) {
+                validate();
+            }
+        },
+        oneditsave: function () {
+            const node = this;
+            node.options = [];
+            const optionsList = $('#node-input-opts-container').editableList('items');
+            optionsList.each(function (i) {
+                const option = $(this);
+                const index = i;
+                const label = option.find('.node-input-option-label').val();
+                const value = option.find('.node-input-option-value').typedInput('value');
+                const valueType = option.find('.node-input-option-value').typedInput('type');
+                const hour = option.find('.node-input-option-hour').val();
+                const minute = option.find('.node-input-option-minute').val();
+                const second = option.find('.node-input-option-second').val();
+                const color = option.find('.node-input-option-color').val();
+                node.options.push({
+                    index, label, value, valueType, hour, minute, second, color
+                });
+            });
+        },
+    });
+</script>
+
+<script type="text/html" data-template-name="ui-feed">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-group"><i class="fa fa-table"></i> Group</span></label>
+        <input type="text" id="node-input-group">
+    </div>
+    <div class="form-row">
+        <label for="node-input-label"><i class="fa fa-i-cursor"></i> Label</label>
+        <input type="text" id="node-input-label">
+    </div>
+    <div class="form-row" id="template-row-size">
+        <label><i class="fa fa-object-group"></i> Size</span></label>
+        <input type="hidden" id="node-input-width">
+        <input type="hidden" id="node-input-height">
+        <button class="editor-button" id="node-input-size"></button>
+    </div>
+    <div class="form-row">
+        <label for="node-input-topic"><i class="fa fa-envelope-o"></i> Topic</label>
+        <input type="text" id="node-input-topic">
+    </div>
+    <div class="form-row">
+        <label for="node-input-cancel"><i class="fa fa-close"></i> On Cancel</label>
+        <input type="text" id="node-input-cancel">
+        <input type="hidden" id="node-input-cancelType">
+    </div>
+    <div class="form-row">
+        <label for='node-input-useThemeColors'><i class='fa fa-paint-brush'></i> Colors</label>
+        <input type='checkbox' id='node-input-useThemeColors' style='width: auto; border: none; vertical-align: baseline;'>
+        <span for='node-input-useThemeColors' style="padding-left: 5px;">Use theme colors?</span>
+    </div>
+    <div class="form-row" style="margin-bottom:0;">
+        <label style="width: 100px"><i class="fa fa-list"></i> Options:</label>
+        <span id="configError" style="color:#DD0000"><b>All Values must be unique.</b></span>
+    </div>
+    <div class="form-row">
+        <ol id="node-input-opts-container"></ol>
+    </div>
+</script>
